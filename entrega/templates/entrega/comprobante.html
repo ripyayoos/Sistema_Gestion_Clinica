@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Comprobante de Entrega</h2>
+<p><strong>Cliente:</strong> {{ equipo.nombre }}</p>
+<p><strong>Equipo:</strong> {{ equipo.tipo }}</p>
+<p><strong>Diagnóstico:</strong> {{ diagnostico.diagnostico }}</p>
+<p><strong>Solución:</strong> {{ diagnostico.solucion }}</p>
+<p><strong>Estado:</strong> {{ equipo.estado }}</p>
+<p><strong>Observaciones:</strong> {{ equipo.observaciones }}</p>
+<button onclick="window.print()" class="btn btn-primary">Imprimir</button>
+{% endblock %}

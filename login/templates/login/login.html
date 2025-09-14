@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Iniciar Sesión</h2>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-danger">{{ message }}</div>
+  {% endfor %}
+{% endif %}
+
+<form method="post">
+    {% csrf_token %}
+    <label>Usuario:</label><br>
+    <input type="text" name="usuario"><br><br>
+
+    <label>Contraseña:</label><br>
+    <input type="password" name="clave"><br><br>
+
+    <button type="submit" class="btn btn-primary">Ingresar</button>
+</form>
+{% endblock %}

@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from ..recepcion.views import EQUIPOS
-from ..diagnostico.views import DIAGNOSTICOS
-from ..utils import login_required_session
+from recepcion.views import EQUIPOS
+from diagnostico.views import DIAGNOSTICOS
+from Proyecto_Clinica.utils import login_required_session
 
 # Create your views here.
 @login_required_session
-def verificar_equipo(request):.
+def verificar_equipo(request):
     nombre = request.GET.get('nombre')
     equipo = next((e for e in EQUIPOS if e['nombre'] == nombre), None) if nombre else None
     return render(request, 'entrega/verificar.html', {'equipo': equipo})

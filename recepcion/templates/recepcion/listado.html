@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Listado de Equipos Recibidos</h2>
+<table class="table table-bordered">
+  <thead><tr><th>Cliente</th><th>Tipo</th><th>Problema</th><th>Acción</th></tr></thead>
+  <tbody>
+    {% for equipo in equipos %}
+      <tr>
+        <td>{{ equipo.nombre }}</td>
+        <td>{{ equipo.tipo }}</td>
+        <td>{{ equipo.problema }}</td>
+        <td><a href="{% url 'detalle_equipo' equipo.nombre %}" class="btn btn-info btn-sm">Ver Detalle</a></td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="4">No hay equipos registrados</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Evaluar Diagnóstico</h2>
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="estudiante" value="{{ estudiante }}">
+  <input type="hidden" name="equipo" value="{{ equipo }}">
+  <div class="mb-3">
+    <label>Diagnóstico</label>
+    <textarea name="diagnostico" class="form-control"></textarea>
+  </div>
+  <div class="mb-3">
+    <label>Solución</label>
+    <textarea name="solucion" class="form-control"></textarea>
+  </div>
+  <div class="mb-3">
+    <label>Tipo</label>
+    <select name="tipo" class="form-control">
+      <option value="correctiva">Correctiva</option>
+      <option value="preventiva">Preventiva</option>
+    </select>
+  </div>
+  <button class="btn btn-success" type="submit">Guardar</button>
+</form>
+{% endblock %}

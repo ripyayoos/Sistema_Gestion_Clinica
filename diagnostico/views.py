@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from ..recepcion.views import EQUIPOS
-from ..utils import login_required_session
+from recepcion.views import EQUIPOS
+from Proyecto_Clinica.utils import login_required_session
 
 
 # Create your views here.
