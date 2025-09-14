@@ -1,24 +1,25 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Asignar Diagnóstico</h2>
-<form method="post" action="{% url 'evaluar' %}">
-  {% csrf_token %}
-  <div class="mb-3">
-    <label>Estudiante</label>
-    <select name="estudiante" class="form-control">
-      {% for est in estudiantes %}
-        <option value="{{ est }}">{{ est }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div class="mb-3">
-    <label>Equipo</label>
-    <select name="equipo" class="form-control">
-      {% for eq in equipos %}
-        <option value="{{ eq.nombre }}">{{ eq.nombre }}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <button class="btn btn-primary" type="submit">Asignar</button>
+
+<form method="post" action="/diagnostico/evaluar/">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">Estudiante</label>
+        <select name="estudiante" class="form-control" required>
+            {% for est in estudiantes %}
+                <option value="{{ est }}">{{ est }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Equipo</label>
+        <select name="equipo" class="form-control" required>
+            {% for eq in equipos %}
+                <option value="{{ eq.cliente }}">{{ eq.cliente }} - {{ eq.tipo_equipo }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <button class="btn btn-primary" type="submit">Continuar a Evaluación</button>
 </form>
 {% endblock %}

@@ -1,16 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Verificar Estado del Equipo</h2>
+
 <form method="get">
-  <div class="mb-3">
-    <label>Nombre Cliente</label>
-    <input type="text" name="nombre" class="form-control">
-  </div>
-  <button class="btn btn-primary" type="submit">Buscar</button>
+    <div class="mb-3">
+        <label class="form-label">Nombre del Cliente</label>
+        <input type="text" name="nombre" class="form-control" required>
+    </div>
+    <button class="btn btn-primary" type="submit">Buscar</button>
 </form>
+
 {% if equipo %}
-  <h4 class="mt-3">Equipo de {{ equipo.nombre }}</h4>
-  <p><strong>Estado actual:</strong> {{ equipo.estado }}</p>
-  <a href="{% url 'reporte' %}?nombre={{ equipo.nombre }}" class="btn btn-success">Generar Reporte</a>
+    <div class="card mt-3">
+        <div class="card-body">
+            <h4>Equipo de {{ equipo.cliente }}</h4>
+            <p><strong>Tipo:</strong> {{ equipo.tipo_equipo }}</p>
+            <p><strong>Problema:</strong> {{ equipo.problema }}</p>
+            <p><strong>Estado actual:</strong> {{ equipo.estado }}</p>
+            <a href="/entrega/reporte/?nombre={{ equipo.cliente }}" class="btn btn-success">Generar Reporte</a>
+        </div>
+    </div>
 {% endif %}
 {% endblock %}

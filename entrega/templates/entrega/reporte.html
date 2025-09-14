@@ -1,20 +1,21 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Reporte de Entrega</h2>
+
 <form method="post">
-  {% csrf_token %}
-  <input type="hidden" name="nombre" value="{{ equipo.nombre }}">
-  <div class="mb-3">
-    <label>Estado</label>
-    <select name="estado" class="form-control">
-      <option value="entregado">Entregado</option>
-      <option value="pendiente">Pendiente</option>
-    </select>
-  </div>
-  <div class="mb-3">
-    <label>Observaciones</label>
-    <textarea name="observaciones" class="form-control"></textarea>
-  </div>
-  <button class="btn btn-success" type="submit">Guardar</button>
+    {% csrf_token %}
+    <input type="hidden" name="nombre" value="{{ request.GET.nombre }}">
+    <div class="mb-3">
+        <label class="form-label">Estado</label>
+        <select name="estado" class="form-control" required>
+            <option value="entregado">Entregado</option>
+            <option value="pendiente">Pendiente</option>
+        </select>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Observaciones</label>
+        <textarea name="observaciones" class="form-control"></textarea>
+    </div>
+    <button class="btn btn-success" type="submit">Guardar Reporte</button>
 </form>
 {% endblock %}

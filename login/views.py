@@ -3,23 +3,18 @@ from django.contrib import messages
 
 def login_view(request):
     if request.method == 'POST':
-        usuario = request.POST.get('usuario')
-        clave = request.POST.get('clave')
-
-        if usuario == 'inacap' and clave == 'clinica2025':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        if username == 'inacap' and password == 'clinica2025':
             request.session['autenticado'] = True
-            return redirect('/recepcion/registrar/')
+            return redirect('/recepcion/registrar/')  # ✅ URL absoluta
         else:
-            messages.error(request, 'Usuario o clave incorrectos.')
-
+            messages.error(request, 'Credenciales incorrectas')
+            return redirect('/')
+    
     return render(request, 'login/login.html')
 
-
-
-def registrar_equipo(request):
-    if not request.session.get('autenticado'):
-        messages.error(request, 'Debes iniciar sesión para acceder.')
-        return redirect('/login/')
-    
-
-    return render(request, 'registrar.html')
+def logout_view(request):
+    request.session.flush()
+    return redirect('/')

@@ -1,11 +1,24 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Comprobante de Entrega</h2>
-<p><strong>Cliente:</strong> {{ equipo.nombre }}</p>
-<p><strong>Equipo:</strong> {{ equipo.tipo }}</p>
-<p><strong>Diagnóstico:</strong> {{ diagnostico.diagnostico }}</p>
-<p><strong>Solución:</strong> {{ diagnostico.solucion }}</p>
-<p><strong>Estado:</strong> {{ equipo.estado }}</p>
-<p><strong>Observaciones:</strong> {{ equipo.observaciones }}</p>
-<button onclick="window.print()" class="btn btn-primary">Imprimir</button>
+
+<div class="card">
+    <div class="card-body">
+        <p><strong>Cliente:</strong> {{ equipo.cliente }}</p>
+        <p><strong>Equipo:</strong> {{ equipo.tipo_equipo }}</p>
+        <p><strong>Problema reportado:</strong> {{ equipo.problema }}</p>
+        
+        {% if diagnostico %}
+            <p><strong>Diagnóstico:</strong> {{ diagnostico.diagnostico }}</p>
+            <p><strong>Solución aplicada:</strong> {{ diagnostico.solucion }}</p>
+            <p><strong>Tipo de solución:</strong> {{ diagnostico.tipo }}</p>
+        {% endif %}
+        
+        <p><strong>Estado final:</strong> {{ equipo.estado }}</p>
+        <p><strong>Observaciones:</strong> {{ equipo.observaciones }}</p>
+    </div>
+</div>
+
+<button onclick="window.print()" class="btn btn-primary mt-3">Imprimir Comprobante</button>
+<a href="/entrega/verificar/" class="btn btn-secondary mt-3">Volver</a>
 {% endblock %}

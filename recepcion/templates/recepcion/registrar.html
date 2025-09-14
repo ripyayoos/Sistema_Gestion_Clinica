@@ -1,20 +1,27 @@
 {% extends 'base.html' %}
 {% block content %}
 <h2>Registrar Equipo</h2>
+
+{% if messages %}
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+{% endif %}
+
 <form method="post">
-  {% csrf_token %}
-  <div class="mb-3">
-    <label>Nombre Cliente</label>
-    <input type="text" name="nombre" class="form-control">
-  </div>
-  <div class="mb-3">
-    <label>Tipo Equipo</label>
-    <input type="text" name="tipo" class="form-control">
-  </div>
-  <div class="mb-3">
-    <label>Problema Informado</label>
-    <textarea name="problema" class="form-control"></textarea>
-  </div>
-  <button class="btn btn-success" type="submit">Registrar</button>
+    {% csrf_token %}
+    <div class="mb-3">
+        <label class="form-label">Nombre Cliente</label>
+        <input type="text" name="cliente" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Tipo Equipo</label>
+        <input type="text" name="tipo_equipo" class="form-control" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Problema Informado</label>
+        <textarea name="problema" class="form-control" required></textarea>
+    </div>
+    <button class="btn btn-success" type="submit">Registrar</button>
 </form>
 {% endblock %}
