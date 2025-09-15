@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Listado de Diagnósticos</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Estudiante</th>
+            <th>Equipo</th>
+            <th>Diagnóstico</th>
+            <th>Solución</th>
+            <th>Tipo</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for diag in diagnosticos %}
+            <tr>
+                <td>{{ diag.estudiante }}</td>
+                <td>{{ diag.equipo }}</td>
+                <td>{{ diag.diagnostico }}</td>
+                <td>{{ diag.solucion }}</td>
+                <td>
+                    {% if diag.tipo == 'correctiva' %}
+                        <span class="badge bg-danger">Correctiva</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Preventiva</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="5" class="text-center">No hay diagnósticos registrados</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
