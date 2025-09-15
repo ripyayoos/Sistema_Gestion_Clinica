@@ -8,7 +8,7 @@ def login_view(request):
         
         if username == 'inacap' and password == 'clinica2025':
             request.session['autenticado'] = True
-            return redirect('/recepcion/registrar/')  # ✅ URL absoluta
+            return redirect('/recepcion/registrar/')
         else:
             messages.error(request, 'Credenciales incorrectas')
             return redirect('/')
