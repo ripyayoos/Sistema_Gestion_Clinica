@@ -1,33 +1,43 @@
-{% extends 'base.html' %}
-{% block content %}
-<h2>Listado de Equipos Recibidos</h2>
+{% extends "base.html" %}
+{% block title %}Listado de Equipos | Recepción{% endblock %}
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Cliente</th>
-            <th>Tipo Equipo</th>
-            <th>Problema</th>
-            <th>Estado</th>
-            <th>Acción</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for equipo in equipos %}
+{% block content %}
+    <h1>Listado de Equipos Recibidos</h1>
+    <p>Total de equipos: {{ equipos|length }}</p>
+    
+    <a href="{% url 'recepcion:registrar' %}" style="padding: 8px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px; margin-bottom: 20px; display: inline-block;">
+        + Registrar Nuevo Equipo
+    </a>
+
+    <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <thead>
+            <tr style="background-color: #f0f0f0;">
+                <th>S/N</th>
+                <th>Cliente</th>
+                <th>Tipo</th>
+                <th>Fecha Ingreso</th>
+                <th>Problema Reportado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipo in equipos %}
             <tr>
-                <td>{{ equipo.cliente }}</td>
-                <td>{{ equipo.tipo_equipo }}</td>
-                <td>{{ equipo.problema }}</td>
-                <td>{{ equipo.estado }}</td>
-                <td>
-                    <a href="/recepcion/detalle/{{ equipo.cliente }}/" class="btn btn-info btn-sm">Ver Detalle</a>
+                <td>{{ equipo.num_serie }}</td>
+                <td>{{ equipo.cliente.nombre }} {{ equipo.cliente.apellido }} ({{ equipo.cliente.rut }})</td>
+                <td>{{ equipo.get_tipo_display }} ({{ equipo.marca }})</td>
+                <td>{{ equipo.recepcion.fecha_ingreso|date:"d M, H:i" }}</td>
+                <td>{{ equipo.recepcion.problema_reportado|truncatechars:50 }}</td>
+                <td style="text-align: center;">
+                    <a href="{% url 'recepcion:detalle' pk=equipo.pk %}" style="margin-right: 10px;">Ver/Editar</a>
+                    <a href="{% url 'diagnostico:asignar' equipo_pk=equipo.pk %}" style="color: darkgreen;">Asignar Diagnóstico</a>
                 </td>
             </tr>
-        {% empty %}
+            {% empty %}
             <tr>
-                <td colspan="5" class="text-center">No hay equipos registrados</td>
+                <td colspan="6" style="text-align: center;">No hay equipos registrados en el sistema.</td>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}

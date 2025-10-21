@@ -1,20 +1,56 @@
-{% extends 'base.html' %}
-{% block content %}
-<h2>Detalle del Equipo</h2>
+{% extends "base.html" %}
+{% block title %}Detalle de {{ equipo.num_serie }} | Recepción{% endblock %}
 
-{% if equipo %}
-    <div class="card">
-        <div class="card-body">
-            <p><strong>Cliente:</strong> {{ equipo.cliente }}</p>
-            <p><strong>Tipo Equipo:</strong> {{ equipo.tipo_equipo }}</p>
-            <p><strong>Problema:</strong> {{ equipo.problema }}</p>
-            <p><strong>Estado:</strong> {{ equipo.estado }}</p>
-            <p><strong>ID:</strong> {{ equipo.id }}</p>
+{% block content %}
+    <h1>Detalle del Equipo: {{ equipo.num_serie }}</h1>
+    
+    <div style="display: flex; gap: 40px; margin-top: 20px;">
+        <div style="flex: 1;">
+            <form method="post">
+                {% csrf_token %}
+                
+                <h2>Editar Cliente (UPDATE)</h2>
+                <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+                    {{ cliente_form.as_p }}
+                </div>
+
+                <h2>Editar Datos del Equipo (UPDATE)</h2>
+                <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+                    {{ equipo_form.as_p }}
+                </div>
+
+                <button type="submit" style="padding: 10px 20px; background-color: #ffc107; color: black; border: none; cursor: pointer;">
+                    Guardar Cambios
+                </button>
+            </form>
+            
+            <h3 style="margin-top: 30px; color: red;">Eliminar Equipo (DELETE)</h3>
+            <a href="{% url 'recepcion:eliminar' pk=equipo.pk %}" 
+               style="padding: 8px 15px; background-color: red; color: white; text-decoration: none; border-radius: 5px;">
+                Eliminar Registro
+            </a>
+        </div>
+
+        <div style="flex: 1; border-left: 1px solid #eee; padding-left: 40px;">
+            <h2>Registro de Recepción</h2>
+            <p><strong>Fecha Ingreso:</strong> {{ equipo.recepcion.fecha_ingreso|date:"d M Y, H:i" }}</p>
+            <p><strong>Problema Reportado:</strong></p>
+            <p style="border: 1px solid #ddd; padding: 10px;">{{ equipo.recepcion.problema_reportado }}</p>
+
+            <h2 style="margin-top: 30px;">Estado y Diagnóstico</h2>
+            {% if equipo.diagnosticos.first %}
+                <p style="color: darkgreen;">Diagnóstico Asignado: Sí</p>
+                <a href="{% url 'diagnostico:detalle' pk=equipo.diagnosticos.first.pk %}" 
+                   style="text-decoration: none;">
+                   Ver Detalle de Diagnóstico
+                </a>
+            {% else %}
+                <p style="color: orange;">Diagnóstico Asignado: No</p>
+                <a href="{% url 'diagnostico:asignar' equipo_pk=equipo.pk %}" 
+                   style="text-decoration: none;">
+                   Asignar Diagnóstico Ahora
+                </a>
+            {% endif %}
         </div>
     </div>
-{% else %}
-    <div class="alert alert-warning">Equipo no encontrado</div>
-{% endif %}
-
-<a href="/recepcion/listado/" class="btn btn-secondary mt-3">Volver al Listado</a>
 {% endblock %}

@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
-
+from dotenv import load_dotenv
+load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-p=8@#544k))hp=ox8i$^sl=6$c@(=p%r^$c!+7ii09@1*%h_ia'
+SECRET_KEY = os.getenv('SECRET_KEY_PROYECTO') 
 DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
@@ -35,10 +36,12 @@ ROOT_URLCONF = 'Proyecto_Clinica.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
-        'APP_DIRS': True,
+        # RUTA CLAVE: Apunta a la carpeta 'templates' en la raíz del proyecto.
+        'DIRS': [BASE_DIR / 'templates'], 
+        'APP_DIRS': True, 
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
@@ -51,8 +54,12 @@ WSGI_APPLICATION = 'Proyecto_Clinica.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 

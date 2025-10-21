@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Asignar Diagnóstico | {{ equipo.num_serie }}{% endblock %}
+
+{% block content %}
+    <h1>Asignar Nuevo Diagnóstico</h1>
+    
+    <div style="border: 1px solid #007bff; padding: 15px; margin-bottom: 20px;">
+        <h3>Equipo Seleccionado</h3>
+        <p><strong>S/N:</strong> {{ equipo.num_serie }}</p>
+        <p><strong>Cliente:</strong> {{ equipo.cliente.nombre }} {{ equipo.cliente.apellido }}</p>
+        <p><strong>Problema Reportado:</strong> {{ equipo.recepcion.problema_reportado }}</p>
+    </div>
+
+    <form method="post" style="max-width: 800px; margin-top: 20px;">
+        {% csrf_token %}
+        
+        <h2>Registro de Diagnóstico</h2>
+        
+        {{ form.non_field_errors }} 
+
+        <input type="hidden" name="equipo" value="{{ equipo.pk }}">
+
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+            {{ form.as_p }}
+        </div>
+        
+        <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; cursor: pointer;">
+            Asignar y Registrar Diagnóstico
+        </button>
+        <a href="{% url 'recepcion:detalle' pk=equipo.pk %}" style="margin-left: 15px;">Cancelar</a>
+    </form>
+{% endblock %}

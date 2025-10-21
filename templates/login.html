@@ -1,0 +1,26 @@
+{% extends "base.html" %} 
+{% block title %}Iniciar Sesión{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <h2>Acceso - Clínica del PC</h2>
+    {% if messages %}
+        {% for message in messages %}
+            <p style="color: red;">{{ message }}</p>
+        {% endfor %}
+    {% endif %}
+    
+    <form method="post">
+        {% csrf_token %}
+        <p>
+            <label for="id_username">Usuario:</label>
+            <input type="text" name="username" id="id_username" required>
+        </p>
+        <p>
+            <label for="id_password">Contraseña:</label>
+            <input type="password" name="password" id="id_password" required>
+        </p>
+        <button type="submit">Acceder</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Confirmar Eliminación | Recepción{% endblock %}
+
+{% block content %}
+    <h1>Confirmar Eliminación</h1>
+    
+    <div style="border: 1px solid red; padding: 20px; background-color: #fffafa;">
+        <p><strong>¿Estás seguro que deseas eliminar el registro del siguiente equipo?</strong></p>
+        <p>Esta acción es irreversible y eliminará el Equipo y su registro de Recepción.</p>
+        
+        <h2>Equipo a Eliminar</h2>
+        <ul>
+            <li><strong>S/N:</strong> {{ equipo.num_serie }}</li>
+            <li><strong>Cliente:</strong> {{ equipo.cliente.nombre }} {{ equipo.cliente.apellido }}</li>
+        </ul>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" style="padding: 10px 20px; background-color: red; color: white; border: none; cursor: pointer;">
+                Sí, Eliminar Permanentemente
+            </button>
+            <a href="{% url 'recepcion:detalle' pk=equipo.pk %}" style="margin-left: 15px;">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}
