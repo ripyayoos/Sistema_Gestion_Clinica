@@ -4,10 +4,9 @@ from django.contrib import messages
 from django.db.models import Count
 from django.urls import reverse_lazy
 
-# Importamos modelos de ambas apps
 from recepcion.models import Equipo
 from .models import Tecnico, Diagnostico, Servicio
-from .forms import DiagnosticoForm # <<--- ¡SOLO IMPORTAMOS ESTE FORMULARIO!
+from .forms import DiagnosticoForm 
 
 # VISTAS CRUD DE DIAGNÓSTICO
 # ==============================================================================
@@ -15,12 +14,11 @@ from .forms import DiagnosticoForm # <<--- ¡SOLO IMPORTAMOS ESTE FORMULARIO!
 @login_required
 def diagnostico_home(request):
     """READ: Dashboard principal de Diagnóstico."""
-    # Estadísticas para el dashboard
     total_diagnosticos = Diagnostico.objects.count()
     equipos_listos = Diagnostico.objects.filter(estado='LISTO').count()
     tecnicos_activos = Tecnico.objects.annotate(
         num_diagnosticos=Count('diagnosticos_realizados')
-    ).filter(num_diagnosticos__gt=0).count()
+    ).count()
 
     context = {
         'total_diagnosticos': total_diagnosticos,
@@ -36,9 +34,7 @@ def listado_diagnosticos(request):
     """READ: Lista todos los diagnósticos pendientes/en curso."""
     diagnosticos = Diagnostico.objects.all().select_related('equipo', 'tecnico_asignado')
     
-    context = {
-        'diagnosticos': diagnosticos,
-    }
+    context = {'diagnosticos': diagnosticos}
     return render(request, 'diagnostico/listado.html', context)
 
 @login_required
@@ -46,13 +42,12 @@ def asignar_diagnostico(request, equipo_pk):
     """CREATE: Asigna técnico y registra el diagnóstico inicial a un equipo (PK)"""
     equipo = get_object_or_404(Equipo, pk=equipo_pk)
     
-    # Si ya tiene un diagnóstico, redirigimos al detalle.
     try:
         diagnostico_existente = Diagnostico.objects.get(equipo=equipo)
         messages.warning(request, f"El equipo S/N {equipo.num_serie} ya tiene un diagnóstico asignado.")
         return redirect('diagnostico:detalle', pk=diagnostico_existente.pk)
     except Diagnostico.DoesNotExist:
-        pass # Continuamos si no existe
+        pass 
 
     if request.method == 'POST':
         form = DiagnosticoForm(request.POST) 
@@ -61,7 +56,7 @@ def asignar_diagnostico(request, equipo_pk):
             diagnostico.equipo = equipo
             diagnostico.save()
             
-            form.save_m2m() # Guarda las relaciones ManyToMany (servicios_aplicados)
+            form.save_m2m() # Guarda la relación M2M (Servicios)
             
             messages.success(request, f'Diagnóstico asignado a {diagnostico.tecnico_asignado.nombre}')
             return redirect('diagnostico:listado') 
@@ -86,18 +81,19 @@ def detalle_diagnostico(request, pk):
     diagnostico = get_object_or_404(Diagnostico.objects.select_related('equipo', 'tecnico_asignado'), pk=pk)
 
     if request.method == 'POST':
-        # ACTULIZACIÓN (UPDATE)
         form = DiagnosticoForm(request.POST, instance=diagnostico)
         if form.is_valid():
-            form.save()
+            # CORRECCIÓN DEL ATTRIBUTE ERROR:
+            diagnostico_guardado = form.save(commit=False)
+            diagnostico_guardado.save() 
             form.save_m2m() 
+            
             messages.success(request, 'Diagnóstico actualizado con éxito.')
             return redirect('diagnostico:detalle', pk=pk)
         else:
             messages.error(request, 'Error al actualizar el diagnóstico.')
             
     else:
-        # LEER (READ)
         form = DiagnosticoForm(instance=diagnostico)
 
     context = {

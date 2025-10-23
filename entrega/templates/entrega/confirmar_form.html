@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Confirmar Entrega{% endblock %}
+
+{% block content %}
+    <h1>Confirmación de Entrega</h1>
+    
+    <div style="border: 2px solid orange; padding: 20px; margin-bottom: 20px;">
+        <p><strong>S/N Equipo:</strong> {{ diagnostico.equipo.num_serie }}</p>
+        <p><strong>Cliente:</strong> {{ diagnostico.equipo.cliente.nombre }} {{ diagnostico.equipo.cliente.apellido }}</p>
+        <p><strong>Estado Actual:</strong> {{ diagnostico.get_estado_display }}</p>
+    </div>
+
+    <p>¿Confirma que el cliente ha retirado el equipo y el ciclo ha finalizado?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" style="padding: 10px 20px; background-color: green; color: white; border: none; cursor: pointer; margin-right: 15px;">
+            Sí, Marcar como ENTREGADO
+        </button>
+        <a href="{% url 'entrega:home' %}">Cancelar y Volver</a>
+    </form>
+{% endblock %}

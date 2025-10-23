@@ -1,21 +1,35 @@
-{% extends 'base.html' %}
-{% block content %}
-<h2>Reporte de Entrega</h2>
+{% extends "base.html" %}
+{% block title %}Comprobante de Entrega{% endblock %}
 
-<form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="nombre" value="{{ request.GET.nombre }}">
-    <div class="mb-3">
-        <label class="form-label">Estado</label>
-        <select name="estado" class="form-control" required>
-            <option value="entregado">Entregado</option>
-            <option value="pendiente">Pendiente</option>
-        </select>
+{% block content %}
+    <h1 style="color: #007bff;">Comprobante de Entrega Final</h1>
+    <div style="border: 3px double #007bff; padding: 30px; margin-top: 20px;">
+        
+        <h2 style="border-bottom: 1px solid #ccc; padding-bottom: 10px;">Datos del Cliente y Equipo</h2>
+        <p><strong>Cliente:</strong> {{ diagnostico.equipo.cliente.nombre }} {{ diagnostico.equipo.cliente.apellido }}</p>
+        <p><strong>RUT:</strong> {{ diagnostico.equipo.cliente.rut }}</p>
+        <p><strong>Teléfono:</strong> {{ diagnostico.equipo.cliente.telefono }}</p>
+        <p><strong>Equipo:</strong> {{ diagnostico.equipo.get_tipo_display }} (S/N: {{ diagnostico.equipo.num_serie }})</p>
+
+        <h2 style="border-bottom: 1px solid #ccc; padding: 10px; margin-top: 30px;">Informe Técnico y Servicios</h2>
+        <p><strong>Técnico Responsable:</strong> {{ diagnostico.tecnico_asignado.nombre }} {{ diagnostico.tecnico_asignado.apellido }}</p>
+        <p><strong>Informe Final:</strong> {{ diagnostico.informe_final }}</p>
+        
+        <h3>Servicios Aplicados (Mano de Obra)</h3>
+        {% if diagnostico.servicios_aplicados.all %}
+            <ul style="list-style: disc; margin-left: 20px;">
+                {% for servicio in diagnostico.servicios_aplicados.all %}
+                    <li>{{ servicio.nombre }} (Costo Est.: ${{ servicio.costo_estimado }})</li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No se especificaron servicios de pago. Solo diagnóstico.</p>
+        {% endif %}
+
+        <h2 style="border-bottom: 1px solid #ccc; padding: 10px; margin-top: 30px; color: green;">Estado Final: ENTREGADO</h2>
+        <p><strong>Fecha de Ingreso:</strong> {{ diagnostico.fecha_inicio|date:"d M Y, H:i" }}</p> 
+        <p>El equipo ha sido entregado al cliente satisfactoriamente. Gracias por su confianza.</p>
     </div>
-    <div class="mb-3">
-        <label class="form-label">Observaciones</label>
-        <textarea name="observaciones" class="form-control"></textarea>
-    </div>
-    <button class="btn btn-success" type="submit">Guardar Reporte</button>
-</form>
+    
+    <a href="{% url 'entrega:home' %}" style="display: inline-block; margin-top: 20px;">Volver a la Gestión de Entregas</a>
 {% endblock %}

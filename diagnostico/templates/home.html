@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Dashboard Diagnóstico{% endblock %}
+
+{% block content %}
+    <h1>Panel de Diagnóstico Técnico</h1>
+    <p>Estadísticas del taller.</p>
+    <a href="{% url 'diagnostico:listado' %}">Ver Listado de Diagnósticos</a>
+{% endblock %}

@@ -10,9 +10,9 @@
         <nav style="background-color: #f0f0f0; padding: 10px; border-bottom: 2px solid #ccc;">
             {% if user.is_authenticated %}
                 <span style="margin-right: 20px;">Bienvenido, {{ user.username }}</span> | 
-                <a href="{% url 'recepcion:home' %}" style="text-decoration: none; margin-right: 15px;">Dashboard</a> | 
-                <a href="{% url 'recepcion:registrar' %}" style="text-decoration: none; margin-right: 15px;">Registrar Equipo</a> | 
-                <a href="{% url 'recepcion:listado' %}" style="text-decoration: none; margin-right: 15px;">Listado de Equipos</a> | 
+                <a href="{% url 'recepcion:home' %}" style="text-decoration: none; margin-right: 15px;">Recepción</a> | 
+                <a href="{% url 'diagnostico:home' %}" style="text-decoration: none; margin-right: 15px;">Diagnóstico</a> | 
+                <a href="{% url 'entrega:home' %}" style="text-decoration: none; margin-right: 15px;">Entrega/Historial</a> | 
                 <a href="{% url 'login:logout' %}" style="text-decoration: none; color: red;">Cerrar Sesión</a>
             {% else %}
                 <a href="{% url 'login:login' %}" style="text-decoration: none;">Iniciar Sesión</a>

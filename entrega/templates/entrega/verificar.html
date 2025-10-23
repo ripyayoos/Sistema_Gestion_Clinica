@@ -1,24 +1,36 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% block title %}Verificar Equipo{% endblock %}
+
 {% block content %}
-<h2>Verificar Estado del Equipo</h2>
+    <h1>Verificación de Equipo para Entrega</h1>
+    <a href="{% url 'entrega:home' %}">Volver a Entrega Home</a>
 
-<form method="get">
-    <div class="mb-3">
-        <label class="form-label">Nombre del Cliente</label>
-        <input type="text" name="nombre" class="form-control" required>
-    </div>
-    <button class="btn btn-primary" type="submit">Buscar</button>
-</form>
+    {% if diagnostico %}
+        <div style="border: 2px solid #28a745; padding: 20px; margin-top: 20px;">
+            <h2>Equipo Encontrado: {{ diagnostico.equipo.num_serie }}</h2>
+            <p><strong>Estado Actual:</strong> {{ diagnostico.get_estado_display }}</p>
+            <p><strong>Cliente:</strong> {{ diagnostico.equipo.cliente.nombre }} {{ diagnostico.equipo.cliente.apellido }}</p>
+            <p><strong>Informe Técnico:</strong> {{ diagnostico.informe_final }}</p>
 
-{% if equipo %}
-    <div class="card mt-3">
-        <div class="card-body">
-            <h4>Equipo de {{ equipo.cliente }}</h4>
-            <p><strong>Tipo:</strong> {{ equipo.tipo_equipo }}</p>
-            <p><strong>Problema:</strong> {{ equipo.problema }}</p>
-            <p><strong>Estado actual:</strong> {{ equipo.estado }}</p>
-            <a href="/entrega/reporte/?nombre={{ equipo.cliente }}" class="btn btn-success">Generar Reporte</a>
+            {% if diagnostico.estado == 'LISTO' %}
+                <p style="color: green; font-weight: bold;">El equipo está LISTO para ser entregado.</p>
+                <a href="{% url 'entrega:confirmar' pk=diagnostico.pk %}" 
+                   style="padding: 10px 20px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
+                    Confirmar Entrega al Cliente
+                </a>
+            {% elif diagnostico.estado == 'ENTREGADO' %}
+                <p style="color: blue; font-weight: bold;">El equipo ya fue ENTREGADO.</p>
+                <a href="{% url 'entrega:reporte' pk=diagnostico.pk %}" 
+                   style="padding: 5px 10px; background-color: blue; color: white; text-decoration: none; border-radius: 5px;">
+                    Ver Reporte de Entrega
+                </a>
+            {% else %}
+                <p style="color: orange; font-weight: bold;">El equipo aún no está en estado 'LISTO'. Estado: {{ diagnostico.get_estado_display }}</p>
+            {% endif %}
+
         </div>
-    </div>
-{% endif %}
+    {% else %}
+        <p>Utilice el buscador para encontrar un equipo por S/N o RUT.</p>
+    {% endif %}
+
 {% endblock %}

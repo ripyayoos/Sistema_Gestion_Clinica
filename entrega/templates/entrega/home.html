@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Entrega | Clínica del PC{% endblock %}
+
+{% block content %}
+    <h1>Gestión de Entrega y Historial</h1>
+    
+    <h3 style="margin-top: 30px; color: orange;">Equipos LISTOS para Retiro (Pendientes)</h3>
+    {% if equipos_pendientes %}
+        <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+                <tr style="background-color: #ffe0b2;">
+                    <th>S/N Equipo</th>
+                    <th>Cliente</th>
+                    <th>Técnico</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for diag in equipos_pendientes %}
+                <tr>
+                    <td>{{ diag.equipo.num_serie }}</td>
+                    <td>{{ diag.equipo.cliente.nombre }} {{ diag.equipo.cliente.apellido }}</td>
+                    <td>{{ diag.tecnico_asignado.nombre }}</td>
+                    <td style="text-align: center;">
+                        <a href="{% url 'entrega:confirmar' pk=diag.pk %}" style="color: green; font-weight: bold;">Confirmar Entrega</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay equipos actualmente listos para ser retirados.</p>
+    {% endif %}
+
+    <h3 style="margin-top: 50px; color: green;">Historial de Entregas Finalizadas</h3>
+    {% if historial_entregados %}
+        <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+                <tr style="background-color: #d4edda;">
+                    <th>S/N Equipo</th>
+                    <th>Cliente</th>
+                    <th>Fecha de Ingreso</th>
+                    <th>Acción</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for diag in historial_entregados %}
+                <tr>
+                    <td>{{ diag.equipo.num_serie }}</td>
+                    <td>{{ diag.equipo.cliente.nombre }} {{ diag.equipo.cliente.apellido }}</td>
+                    <td>{{ diag.fecha_inicio|date:"d M Y" }}</td>
+                    <td style="text-align: center;">
+                        <a href="{% url 'entrega:reporte' pk=diag.pk %}">Ver Comprobante</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No hay historial de equipos entregados.</p>
+    {% endif %}
+
+{% endblock %}

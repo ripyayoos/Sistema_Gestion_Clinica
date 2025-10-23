@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Detalle Diagnóstico | {{ diagnostico.equipo.num_serie }}{% endblock %}
+
+{% block content %}
+    <h1>Detalle del Diagnóstico (ID: {{ diagnostico.pk }})</h1>
+    
+    <div style="border: 1px solid #007bff; padding: 15px; margin-bottom: 20px;">
+        <h3>Información del Equipo</h3>
+        <p><strong>S/N:</strong> <a href="{% url 'recepcion:detalle' pk=diagnostico.equipo.pk %}">{{ diagnostico.equipo.num_serie }}</a></p>
+        <p><strong>Cliente:</strong> {{ diagnostico.equipo.cliente.nombre }} {{ diagnostico.equipo.cliente.apellido }}</p>
+        <p><strong>Técnico Asignado:</strong> {{ diagnostico.tecnico_asignado.nombre }} {{ diagnostico.tecnico_asignado.apellido }}</p>
+    </div>
+
+    <form method="post" style="max-width: 800px; margin-top: 20px;">
+        {% csrf_token %}
+        
+        <h2>Actualizar Diagnóstico y Estado</h2>
+        
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+            {{ form.as_p }}
+        </div>
+        
+        <button type="submit" style="padding: 10px 20px; background-color: #ffc107; color: black; border: none; cursor: pointer; margin-right: 15px;">
+            Guardar Cambios
+        </button>
+        <a href="{% url 'diagnostico:eliminar' pk=diagnostico.pk %}" style="color: red;">Eliminar Diagnóstico</a>
+    </form>
+    
+    <h3 style="margin-top: 40px;">Servicios Registrados (N:M)</h3>
+    {% if diagnostico.servicios_aplicados.all %}
+        <ul style="list-style: square;">
+            {% for servicio in diagnostico.servicios_aplicados.all %}
+                <li>{{ servicio.nombre }} (Costo Est.: ${{ servicio.costo_estimado }})</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No se han registrado servicios para este diagnóstico.</p>
+    {% endif %}
+
+{% endblock %}
