@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Confirmar Eliminación Diagnóstico{% endblock %}
+
+{% block content %}
+    <h1>Confirmar Eliminación</h1>
+    
+    <div style="border: 1px solid red; padding: 20px; background-color: #fffafa;">
+        <p><strong>¿Estás seguro que deseas eliminar el Diagnóstico ID: {{ diagnostico.pk }}?</strong></p>
+        <p>Esta acción es irreversible.</p>
+        
+        <p><strong>Equipo:</strong> {{ diagnostico.equipo.num_serie }}</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" style="padding: 10px 20px; background-color: red; color: white; border: none; cursor: pointer;">
+                Sí, Eliminar Permanentemente
+            </button>
+            <a href="{% url 'diagnostico:detalle' pk=diagnostico.pk %}" style="margin-left: 15px;">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}

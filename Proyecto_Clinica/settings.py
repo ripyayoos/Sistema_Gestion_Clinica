@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Lee la clave secreta del .env
 SECRET_KEY = os.getenv('SECRET_KEY_PROYECTO') 
 DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
@@ -36,7 +37,6 @@ ROOT_URLCONF = 'Proyecto_Clinica.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        # RUTA CLAVE: Apunta a la carpeta 'templates' en la raíz del proyecto.
         'DIRS': [BASE_DIR / 'templates'], 
         'APP_DIRS': True, 
         'OPTIONS': {
@@ -52,6 +52,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Proyecto_Clinica.wsgi.application'
 
+# Conexión a PostgreSQL (usando variables de entorno)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -70,3 +71,6 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+LOGIN_URL = 'login:login'
+LOGOUT_REDIRECT_URL = 'login:login'

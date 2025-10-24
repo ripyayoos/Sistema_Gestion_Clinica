@@ -1,37 +1,36 @@
-{% extends 'base.html' %}
-{% block content %}
-<h2>Listado de Diagnósticos</h2>
+{% extends "base.html" %}
+{% block title %}Listado de Diagnósticos{% endblock %}
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Estudiante</th>
-            <th>Equipo</th>
-            <th>Diagnóstico</th>
-            <th>Solución</th>
-            <th>Tipo</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for diag in diagnosticos %}
+{% block content %}
+    <h1>Diagnósticos Asignados</h1>
+    <table border="1" style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+        <thead>
+            <tr style="background-color: #f0f0f0;">
+                <th>ID</th>
+                <th>S/N Equipo</th>
+                <th>Técnico</th>
+                <th>Estado</th>
+                <th>Fecha Inicio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for diag in diagnosticos %}
             <tr>
-                <td>{{ diag.estudiante }}</td>
-                <td>{{ diag.equipo }}</td>
-                <td>{{ diag.diagnostico }}</td>
-                <td>{{ diag.solucion }}</td>
-                <td>
-                    {% if diag.tipo == 'correctiva' %}
-                        <span class="badge bg-danger">Correctiva</span>
-                    {% else %}
-                        <span class="badge bg-warning text-dark">Preventiva</span>
-                    {% endif %}
+                <td>{{ diag.pk }}</td>
+                <td><a href="{% url 'recepcion:detalle' pk=diag.equipo.pk %}">{{ diag.equipo.num_serie }}</a></td>
+                <td>{{ diag.tecnico_asignado.nombre }}</td>
+                <td>{{ diag.get_estado_display }}</td>
+                <td>{{ diag.fecha_inicio|date:"d M Y" }}</td>
+                <td style="text-align: center;">
+                    <a href="{% url 'diagnostico:detalle' pk=diag.pk %}">Gestionar</a>
                 </td>
             </tr>
-        {% empty %}
+            {% empty %}
             <tr>
-                <td colspan="5" class="text-center">No hay diagnósticos registrados</td>
+                <td colspan="6" style="text-align: center;">No hay diagnósticos registrados.</td>
             </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            {% endfor %}
+        </tbody>
+    </table>
 {% endblock %}
