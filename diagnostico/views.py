@@ -1,47 +1,119 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from recepcion.views import equipos_registrados
+from django.db.models import Count
+from django.urls import reverse_lazy
 
-DIAGNOSTICOS = []
+# Importamos modelos de ambas apps
+from recepcion.models import Equipo
+from .models import Tecnico, Diagnostico, Servicio
+from .forms import DiagnosticoForm # <<--- ¡SOLO IMPORTAMOS ESTE FORMULARIO!
 
-def asignar_tarea(request):
-    if not request.session.get('autenticado'):
-        return redirect('/')
-    
-    estudiantes = ['Alumno A', 'Alumno B', 'Alumno C']
-    return render(request, 'diagnostico/asignar.html', {
-        'equipos': equipos_registrados,
-        'estudiantes': estudiantes
-    })
+# VISTAS CRUD DE DIAGNÓSTICO
+# ==============================================================================
 
-def evaluar_diagnostico(request):
-    if not request.session.get('autenticado'):
-        return redirect('/')
-    
-    if request.method == 'POST':
-        estudiante = request.POST.get('estudiante')
-        equipo_nombre = request.POST.get('equipo')
-        diagnostico = request.POST.get('diagnostico')
-        solucion = request.POST.get('solucion')
-        tipo_solucion = 'correctiva' if request.POST.get('tipo') == 'correctiva' else 'preventiva'
-        
-        DIAGNOSTICOS.append({
-            'estudiante': estudiante,
-            'equipo': equipo_nombre,
-            'diagnostico': diagnostico,
-            'solucion': solucion,
-            'tipo': tipo_solucion,
-        })
-        
-        messages.success(request, 'Diagnóstico registrado correctamente')
-        return redirect('/diagnostico/listado/')
-    
-    return redirect('/diagnostico/asignar/')
+@login_required
+def diagnostico_home(request):
+    """READ: Dashboard principal de Diagnóstico."""
+    # Estadísticas para el dashboard
+    total_diagnosticos = Diagnostico.objects.count()
+    equipos_listos = Diagnostico.objects.filter(estado='LISTO').count()
+    tecnicos_activos = Tecnico.objects.annotate(
+        num_diagnosticos=Count('diagnosticos_realizados')
+    ).filter(num_diagnosticos__gt=0).count()
 
+    context = {
+        'total_diagnosticos': total_diagnosticos,
+        'equipos_listos': equipos_listos,
+        'tecnicos_activos': tecnicos_activos,
+        'usuario': request.user.username
+    }
+    return render(request, 'diagnostico/home.html', context)
+
+
+@login_required
 def listado_diagnosticos(request):
-    if not request.session.get('autenticado'):
-        return redirect('/')
+    """READ: Lista todos los diagnósticos pendientes/en curso."""
+    diagnosticos = Diagnostico.objects.all().select_related('equipo', 'tecnico_asignado')
     
-    return render(request, 'diagnostico/listado.html', {
-        'diagnosticos': DIAGNOSTICOS
-    })
+    context = {
+        'diagnosticos': diagnosticos,
+    }
+    return render(request, 'diagnostico/listado.html', context)
+
+@login_required
+def asignar_diagnostico(request, equipo_pk):
+    """CREATE: Asigna técnico y registra el diagnóstico inicial a un equipo (PK)"""
+    equipo = get_object_or_404(Equipo, pk=equipo_pk)
+    
+    # Si ya tiene un diagnóstico, redirigimos al detalle.
+    try:
+        diagnostico_existente = Diagnostico.objects.get(equipo=equipo)
+        messages.warning(request, f"El equipo S/N {equipo.num_serie} ya tiene un diagnóstico asignado.")
+        return redirect('diagnostico:detalle', pk=diagnostico_existente.pk)
+    except Diagnostico.DoesNotExist:
+        pass # Continuamos si no existe
+
+    if request.method == 'POST':
+        form = DiagnosticoForm(request.POST) 
+        if form.is_valid():
+            diagnostico = form.save(commit=False)
+            diagnostico.equipo = equipo
+            diagnostico.save()
+            
+            form.save_m2m() # Guarda las relaciones ManyToMany (servicios_aplicados)
+            
+            messages.success(request, f'Diagnóstico asignado a {diagnostico.tecnico_asignado.nombre}')
+            return redirect('diagnostico:listado') 
+        else:
+            messages.error(request, 'Error al procesar el formulario.')
+            
+    else:
+        form = DiagnosticoForm()
+
+    context = {
+        'equipo': equipo,
+        'form': form,
+        'servicios': Servicio.objects.all(),
+        'tecnicos': Tecnico.objects.all()
+    }
+    return render(request, 'diagnostico/asignar_form.html', context)
+
+
+@login_required
+def detalle_diagnostico(request, pk):
+    """READ/UPDATE/DELETE: Vista de detalle para gestionar el diagnóstico."""
+    diagnostico = get_object_or_404(Diagnostico.objects.select_related('equipo', 'tecnico_asignado'), pk=pk)
+
+    if request.method == 'POST':
+        # ACTULIZACIÓN (UPDATE)
+        form = DiagnosticoForm(request.POST, instance=diagnostico)
+        if form.is_valid():
+            form.save()
+            form.save_m2m() 
+            messages.success(request, 'Diagnóstico actualizado con éxito.')
+            return redirect('diagnostico:detalle', pk=pk)
+        else:
+            messages.error(request, 'Error al actualizar el diagnóstico.')
+            
+    else:
+        # LEER (READ)
+        form = DiagnosticoForm(instance=diagnostico)
+
+    context = {
+        'diagnostico': diagnostico,
+        'form': form,
+        'servicios_disponibles': Servicio.objects.all(),
+    }
+    return render(request, 'diagnostico/detalle.html', context)
+
+@login_required
+def eliminar_diagnostico(request, pk):
+    """DELETE: Elimina un registro de diagnóstico."""
+    diagnostico = get_object_or_404(Diagnostico, pk=pk)
+    if request.method == 'POST':
+        diagnostico.delete()
+        messages.success(request, f'Diagnóstico para S/N: {diagnostico.equipo.num_serie} eliminado.')
+        return redirect('diagnostico:listado')
+        
+    return render(request, 'diagnostico/confirm_delete.html', {'diagnostico': diagnostico})

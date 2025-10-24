@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Dashboard | Clínica del PC{% endblock %}
+
+{% block content %}
+    <h1>Panel de Recepción</h1>
+    <p>Vista rápida de la gestión actual de la Clínica.</p>
+
+    <div style="display: flex; gap: 20px; margin-top: 20px;">
+        <div style="border: 1px solid #ccc; padding: 15px; flex-grow: 1; text-align: center;">
+            <h2>Total de Equipos Recibidos</h2>
+            <p style="font-size: 2em; color: #007bff;">{{ total_equipos }}</p>
+            <a href="{% url 'recepcion:listado' %}" style="text-decoration: none; font-size: 0.9em;">Ver Listado Completo</a>
+        </div>
+        
+        <div style="border: 1px solid #ccc; padding: 15px; flex-grow: 1; text-align: center;">
+            <h2>En Diagnóstico/Reparación</h2>
+            <p style="font-size: 2em; color: #ffc107;">{{ equipos_en_reparacion }}</p>
+            <p style="font-size: 0.9em;">(Equipos en manos de Técnicos)</p>
+        </div>
+        
+        <div style="border: 1px solid #ccc; padding: 15px; flex-grow: 1; text-align: center;">
+            <h2>Técnicos Activos</h2>
+            <p style="font-size: 2em; color: #28a745;">{{ total_tecnicos }}</p>
+            <p style="font-size: 0.9em;">(Estudiantes Asignados)</p>
+        </div>
+    </div>
+    
+    <h3 style="margin-top: 40px;">Acciones Rápidas</h3>
+    <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: 10px;">
+            <a href="{% url 'recepcion:registrar' %}" style="padding: 8px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+                + Registrar Nuevo Equipo
+            </a>
+        </li>
+    </ul>
+
+{% endblock %}

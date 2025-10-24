@@ -1,27 +1,29 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
+{% block title %}Registrar Nuevo Equipo | Recepción{% endblock %}
+
 {% block content %}
-<h2>Registrar Equipo</h2>
+    <h1>Registrar Nuevo Equipo</h1>
+    <form method="post" style="max-width: 600px; margin-top: 20px;">
+        {% csrf_token %}
+        
+        <h2>1. Datos del Cliente</h2>
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+            {{ cliente_form.as_p }}
+        </div>
 
-{% if messages %}
-    {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-{% endif %}
+        <h2>2. Datos del Equipo</h2>
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+            {{ equipo_form.as_p }}
+        </div>
 
-<form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label class="form-label">Nombre Cliente</label>
-        <input type="text" name="cliente" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Tipo Equipo</label>
-        <input type="text" name="tipo_equipo" class="form-control" required>
-    </div>
-    <div class="mb-3">
-        <label class="form-label">Problema Informado</label>
-        <textarea name="problema" class="form-control" required></textarea>
-    </div>
-    <button class="btn btn-success" type="submit">Registrar</button>
-</form>
+        <h2>3. Registro de Recepción</h2>
+        <div style="border: 1px solid #ccc; padding: 15px; margin-bottom: 20px;">
+            {{ recepcion_form.as_p }}
+        </div>
+
+        <button type="submit" style="padding: 10px 20px; background-color: #28a745; color: white; border: none; cursor: pointer;">
+            Registrar Equipo y Recepción
+        </button>
+        <a href="{% url 'recepcion:listado' %}" style="margin-left: 15px;">Cancelar</a>
+    </form>
 {% endblock %}
