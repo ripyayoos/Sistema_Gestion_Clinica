@@ -5,7 +5,10 @@ from django.db import transaction
 from .models import Cliente, Equipo, Recepcion
 from .forms import ClienteForm, EquipoForm, RecepcionForm 
 from diagnostico.models import Diagnostico, Tecnico 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
 
+import json
 
 @login_required 
 def recepcion_home(request):
@@ -143,3 +146,80 @@ def eliminar_equipo(request, pk):
 
     context = {'equipo': equipo}
     return render(request, 'recepcion/confirm_delete.html', context)
+
+@csrf_exempt
+def api_crear_recepcion(request):
+    """POST: Crear cliente + equipo + recepción por API (JSON)"""
+    
+    if request.method != "POST":
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+
+        # 1. Cliente
+        cliente, creado = Cliente.objects.get_or_create(
+            rut=data["rut"],
+            defaults={
+                "nombre": data["nombre"],
+                "apellido": data["apellido"],
+                "email": data["email"],
+                "telefono": data["telefono"]
+            }
+        )
+
+        # 2. Equipo
+        equipo = Equipo.objects.create(
+            tipo=data["tipo"],
+            marca=data["marca"],
+            num_serie=data["num_serie"],
+            cliente=cliente
+        )
+
+        # 3. Recepción
+        recepcion = Recepcion.objects.create(
+            equipo=equipo,
+            problema_reportado=data["problema"]
+        )
+
+        return JsonResponse({
+            "mensaje": "Recepción creada correctamente",
+            "recepcion": {
+                "num_serie": equipo.num_serie,
+                "cliente": f"{cliente.nombre} {cliente.apellido}",
+                "fecha_ingreso": recepcion.fecha_ingreso
+            }
+        })
+
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
+    
+@csrf_exempt
+def api_actualizar_recepcion(request, num_serie):
+    """PUT: Actualizar el registro de recepción por API (JSON)"""
+
+    if request.method != "PUT":
+        return JsonResponse({"error": "Método no permitido"}, status=405)
+
+    try:
+        data = json.loads(request.body)
+
+        equipo = Equipo.objects.get(num_serie=num_serie)
+        recepcion = Recepcion.objects.get(equipo=equipo)
+
+        # Actualizar problema
+        if "problema" in data:
+            recepcion.problema_reportado = data["problema"]
+
+        recepcion.save()
+
+        return JsonResponse({"mensaje": "Recepción actualizada correctamente"})
+
+    except Equipo.DoesNotExist:
+        return JsonResponse({"error": "Equipo no encontrado"}, status=404)
+    
+    except Recepcion.DoesNotExist:
+        return JsonResponse({"error": "Recepción no encontrada"}, status=404)
+    
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=400)
