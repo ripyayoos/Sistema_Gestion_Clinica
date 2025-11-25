@@ -4,9 +4,13 @@ from django.contrib import messages
 from django.db.models import Count
 from django.urls import reverse_lazy
 
+
 from recepcion.models import Equipo
 from .models import Tecnico, Diagnostico, Servicio
 from .forms import DiagnosticoForm 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
 
 # VISTAS CRUD DE DIAGNÓSTICO
 # ==============================================================================
@@ -113,3 +117,33 @@ def eliminar_diagnostico(request, pk):
         return redirect('diagnostico:listado')
         
     return render(request, 'diagnostico/confirm_delete.html', {'diagnostico': diagnostico})
+
+def crear_diagnostico(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        
+        nuevo = Diagnostico.objects.create(
+            titulo=data["titulo"],
+            descripcion=data["descripcion"],
+            estado="pendiente"
+        )
+        return JsonResponse({"mensaje": "Diagnóstico creado", "id": nuevo.id})
+
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+@csrf_exempt
+def actualizar_diagnostico(request, pk):
+    diagnostico = get_object_or_404(Diagnostico, pk=pk)
+
+    if request.method == "PUT":
+        data = json.loads(request.body)
+
+        diagnostico.titulo = data.get("titulo", diagnostico.titulo)
+        diagnostico.descripcion = data.get("descripcion", diagnostico.descripcion)
+        diagnostico.estado = data.get("estado", diagnostico.estado)
+
+        diagnostico.save()
+
+        return JsonResponse({"mensaje": "Diagnóstico actualizado"})
+
+    return JsonResponse({"error": "Método no permitido"}, status=405)
