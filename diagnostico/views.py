@@ -147,3 +147,19 @@ def actualizar_diagnostico(request, pk):
         return JsonResponse({"mensaje": "Diagnóstico actualizado"})
 
     return JsonResponse({"error": "Método no permitido"}, status=405)
+
+# --- ELIMINAR: eliminar_diagnostico ---
+@login_required
+def eliminar_diagnostico(request, pk):
+    """DELETE: Elimina un registro de diagnóstico."""
+    diagnostico = get_object_or_404(Diagnostico, pk=pk)
+    
+    if request.method == 'POST':
+        diagnostico_pk = diagnostico.pk
+        diagnostico.delete()
+        
+        messages.success(request, f"Diagnóstico #{diagnostico_pk} eliminado correctamente.")
+        return redirect('diagnostico:listado')
+
+    context = {'diagnostico': diagnostico}
+    return render(request, 'diagnostico/confirm_delete.html', context)

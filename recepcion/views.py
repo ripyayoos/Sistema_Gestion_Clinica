@@ -127,7 +127,7 @@ def detalle_equipo(request, pk):
     }
     return render(request, 'recepcion/detalle.html', context)
 
-# --- ELIMINAR: eliminar_equipo ---
+# --- ELIMINAR: eliminar_equipo (FUNCIÓN PERDIDA) ---
 @login_required
 def eliminar_equipo(request, pk):
     """DELETE: Elimina un equipo y su cliente asociado."""
@@ -135,17 +135,26 @@ def eliminar_equipo(request, pk):
     cliente = equipo.cliente 
 
     if request.method == 'POST':
-        equipo_num_serie = equipo.num_serie
-        equipo.delete()
-        
-        if cliente.equipos_recibidos.count() == 0:
-            cliente.delete()
-        
-        messages.success(request, f'Equipo con S/N: {equipo_num_serie} eliminado correctamente.')
-        return redirect('recepcion:listado')
+        try:
+            with transaction.atomic(): 
+                equipo_num_serie = equipo.num_serie
+                equipo.delete()
+                
+                # Solo elimina al cliente si no tiene otros equipos registrados
+                if cliente.equipos_recibidos.count() == 0:
+                    cliente.delete()
+            
+            messages.success(request, f'Equipo con S/N: {equipo_num_serie} eliminado correctamente.')
+            return redirect('recepcion:listado')
+
+        except Exception as e:
+             messages.error(request, f'Error al eliminar el equipo: {e}')
+             return redirect('recepcion:detalle', pk=equipo.pk)
 
     context = {'equipo': equipo}
     return render(request, 'recepcion/confirm_delete.html', context)
+
+# --- API ENDPOINTS (FUNCIONES REST) ---
 
 @csrf_exempt
 def api_crear_recepcion(request):
