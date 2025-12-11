@@ -81,13 +81,13 @@ def asignar_diagnostico(request, equipo_pk):
 
 @login_required
 def detalle_diagnostico(request, pk):
-    """READ/UPDATE/DELETE: Vista de detalle para gestionar el diagnóstico."""
+    """READ/UPDATE: Vista de detalle para gestionar el diagnóstico."""
     diagnostico = get_object_or_404(Diagnostico.objects.select_related('equipo', 'tecnico_asignado'), pk=pk)
 
     if request.method == 'POST':
         form = DiagnosticoForm(request.POST, instance=diagnostico)
         if form.is_valid():
-            # CORRECCIÓN DEL ATTRIBUTE ERROR:
+            # Actualización (UPDATE)
             diagnostico_guardado = form.save(commit=False)
             diagnostico_guardado.save() 
             form.save_m2m() 
@@ -107,47 +107,6 @@ def detalle_diagnostico(request, pk):
     }
     return render(request, 'diagnostico/detalle.html', context)
 
-@login_required
-def eliminar_diagnostico(request, pk):
-    """DELETE: Elimina un registro de diagnóstico."""
-    diagnostico = get_object_or_404(Diagnostico, pk=pk)
-    if request.method == 'POST':
-        diagnostico.delete()
-        messages.success(request, f'Diagnóstico para S/N: {diagnostico.equipo.num_serie} eliminado.')
-        return redirect('diagnostico:listado')
-        
-    return render(request, 'diagnostico/confirm_delete.html', {'diagnostico': diagnostico})
-
-def crear_diagnostico(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        
-        nuevo = Diagnostico.objects.create(
-            titulo=data["titulo"],
-            descripcion=data["descripcion"],
-            estado="pendiente"
-        )
-        return JsonResponse({"mensaje": "Diagnóstico creado", "id": nuevo.id})
-
-    return JsonResponse({"error": "Método no permitido"}, status=405)
-
-@csrf_exempt
-def actualizar_diagnostico(request, pk):
-    diagnostico = get_object_or_404(Diagnostico, pk=pk)
-
-    if request.method == "PUT":
-        data = json.loads(request.body)
-
-        diagnostico.titulo = data.get("titulo", diagnostico.titulo)
-        diagnostico.descripcion = data.get("descripcion", diagnostico.descripcion)
-        diagnostico.estado = data.get("estado", diagnostico.estado)
-
-        diagnostico.save()
-
-        return JsonResponse({"mensaje": "Diagnóstico actualizado"})
-
-    return JsonResponse({"error": "Método no permitido"}, status=405)
-
 # --- ELIMINAR: eliminar_diagnostico ---
 @login_required
 def eliminar_diagnostico(request, pk):
@@ -163,3 +122,74 @@ def eliminar_diagnostico(request, pk):
 
     context = {'diagnostico': diagnostico}
     return render(request, 'diagnostico/confirm_delete.html', context)
+
+
+# API ENDPOINTS
+# ==============================================================================
+
+# API: GET - Obtener detalle por PK
+@csrf_exempt
+def api_obtener_diagnostico(request, pk):
+    """API GET: Obtiene el detalle de un diagnóstico por PK."""
+    if request.method == "GET":
+        try:
+            diagnostico = Diagnostico.objects.select_related('equipo', 'tecnico_asignado').get(pk=pk)
+            servicios = [s.nombre for s in diagnostico.servicios_requeridos.all()]
+            
+            data = {
+                "id": diagnostico.pk,
+                "equipo_sn": diagnostico.equipo.num_serie,
+                "tecnico": diagnostico.tecnico_asignado.nombre,
+                "titulo": diagnostico.titulo,
+                "descripcion": diagnostico.descripcion,
+                "estado": diagnostico.estado,
+                "servicios_requeridos": servicios,
+                "diagnostico_final": diagnostico.diagnostico_final,
+            }
+            return JsonResponse(data)
+        except Diagnostico.DoesNotExist:
+            return JsonResponse({"error": "Diagnóstico no encontrado"}, status=404)
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+# API: PUT - Actualizar Diagnóstico
+@csrf_exempt
+def actualizar_diagnostico(request, pk):
+    """API PUT: Actualiza el estado de un diagnóstico por API (requiere ID)."""
+    diagnostico = get_object_or_404(Diagnostico, pk=pk)
+
+    if request.method == "PUT":
+        try:
+            data = json.loads(request.body)
+
+            diagnostico.titulo = data.get("titulo", diagnostico.titulo)
+            diagnostico.descripcion = data.get("descripcion", diagnostico.descripcion)
+            diagnostico.estado = data.get("estado", diagnostico.estado)
+            
+            # Se puede agregar lógica para actualizar servicios si es necesario
+
+            diagnostico.save()
+
+            return JsonResponse({"mensaje": "Diagnóstico actualizado"})
+            
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Formato JSON inválido."}, status=400)
+        except Exception as e:
+             return JsonResponse({"error": str(e)}, status=400)
+
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+# API: DELETE - Eliminar por PK
+@csrf_exempt
+def api_eliminar_diagnostico(request, pk):
+    """API DELETE: Elimina un registro de diagnóstico por PK."""
+    if request.method == "DELETE":
+        try:
+            diagnostico = Diagnostico.objects.get(pk=pk)
+            diagnostico_id = diagnostico.pk
+            diagnostico.delete()
+            return JsonResponse({"mensaje": f"Diagnóstico ID {diagnostico_id} eliminado."}, status=204)
+        except Diagnostico.DoesNotExist:
+            return JsonResponse({"error": "Diagnóstico no encontrado"}, status=404)
+    return JsonResponse({"error": "Método no permitido"}, status=405)

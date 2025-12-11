@@ -7,8 +7,10 @@ from .forms import ClienteForm, EquipoForm, RecepcionForm
 from diagnostico.models import Diagnostico, Tecnico 
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
-
 import json
+
+# VISTAS CRUD HTML
+# ==============================================================================
 
 @login_required 
 def recepcion_home(request):
@@ -127,7 +129,7 @@ def detalle_equipo(request, pk):
     }
     return render(request, 'recepcion/detalle.html', context)
 
-# --- ELIMINAR: eliminar_equipo (FUNCIÓN PERDIDA) ---
+# --- ELIMINAR: eliminar_equipo ---
 @login_required
 def eliminar_equipo(request, pk):
     """DELETE: Elimina un equipo y su cliente asociado."""
@@ -155,7 +157,38 @@ def eliminar_equipo(request, pk):
     return render(request, 'recepcion/confirm_delete.html', context)
 
 # --- API ENDPOINTS (FUNCIONES REST) ---
+# ==============================================================================
 
+# API: GET - Obtener detalle por número de serie
+@csrf_exempt
+def api_detalle_recepcion(request, num_serie):
+    """API GET: Obtiene el detalle de una recepción por número de serie."""
+    if request.method == "GET":
+        try:
+            equipo = Equipo.objects.get(num_serie=num_serie)
+            recepcion = Recepcion.objects.get(equipo=equipo)
+            
+            data = {
+                "num_serie": equipo.num_serie,
+                "tipo": equipo.tipo,
+                "marca": equipo.marca,
+                "cliente": {
+                    "rut": equipo.cliente.rut,
+                    "nombre": equipo.cliente.nombre,
+                    "telefono": equipo.cliente.telefono,
+                },
+                "problema_reportado": recepcion.problema_reportado,
+                "fecha_ingreso": recepcion.fecha_ingreso.isoformat(),
+            }
+            return JsonResponse(data)
+        except Equipo.DoesNotExist:
+            return JsonResponse({"error": "Equipo no encontrado"}, status=404)
+        except Recepcion.DoesNotExist:
+            return JsonResponse({"error": "Recepción no encontrada"}, status=404)
+    return JsonResponse({"error": "Método no permitido"}, status=405)
+
+
+# API: POST - Crear recepción
 @csrf_exempt
 def api_crear_recepcion(request):
     """POST: Crear cliente + equipo + recepción por API (JSON)"""
@@ -198,11 +231,13 @@ def api_crear_recepcion(request):
                 "cliente": f"{cliente.nombre} {cliente.apellido}",
                 "fecha_ingreso": recepcion.fecha_ingreso
             }
-        })
+        }, status=201)
 
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
     
+
+# API: PUT - Actualizar recepción
 @csrf_exempt
 def api_actualizar_recepcion(request, num_serie):
     """PUT: Actualizar el registro de recepción por API (JSON)"""
@@ -232,3 +267,17 @@ def api_actualizar_recepcion(request, num_serie):
     
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=400)
+
+
+# API: DELETE - Eliminar por número de serie
+@csrf_exempt
+def api_eliminar_recepcion(request, num_serie):
+    """API DELETE: Elimina un registro de recepción por número de serie."""
+    if request.method == "DELETE":
+        try:
+            equipo = Equipo.objects.get(num_serie=num_serie)
+            equipo.delete()
+            return JsonResponse({"mensaje": f"Equipo S/N {num_serie} eliminado."}, status=204)
+        except Equipo.DoesNotExist:
+            return JsonResponse({"error": "Equipo no encontrado"}, status=404)
+    return JsonResponse({"error": "Método no permitido"}, status=405)
